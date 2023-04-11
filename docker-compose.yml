@@ -1,0 +1,30 @@
+version: '3'
+services:
+    web:
+        image: manheok/flask-users-test
+        build: .
+        ports:
+            - "5000:5000"
+        volumes:
+            - ./flask_users:/code
+        depends_on:
+            - mongodb
+            - redis
+    mongodb:
+        image: mongo:3.4.19-jessie
+        environment:
+            - MONGO_DATA_DIR=/data/db
+        volumes:
+            - ./data/db:/data/db
+        ports:
+            - 27017:27017
+    worker:
+        build: .
+        environment:
+            - CELERY_BROKER_URL=redis://redis:6379/0
+        command: ['celery', '-A', 'flask_users.tasks', 'worker', '-l', 'debug']
+        depends_on:
+            - redis
+            - mongodb
+    redis:
+        image: redis
