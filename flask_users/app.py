@@ -23,7 +23,7 @@ def get_users_collection(app_config):
     :param app_config: Flask app.config
     :return: pymongo Collection object
     """
-    client = MongoClient(app_config['mongo_host'], 27017, serverSelectionTimeoutMS=2)
+    client = MongoClient(app_config['mongo_host'], 27017, serverSelectionTimeoutMS=10000)
     return client[app_config['db_name']][app_config['collection_name']]
 
 
