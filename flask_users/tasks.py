@@ -25,18 +25,14 @@ def update_document(users, user_id, account_key):
 
 @celery_app.task
 def async_get_account_key(user_email, user_id, host, db_name, collection_name):
-    response = get_account_key(user_email, str(user_id))
-    if response.status_code != 200:
-        logger.debug('response: ' + response)
-        return
-    response_dict = json.loads(response.text)
-    account_key = response_dict.get('account_key')
+    account_key = get_account_key(user_email, str(user_id))
     if not account_key:
-        logger.debug(response)
+        logger.warning('Could not get account key')
+        return None
 
     client = MongoClient(host, 27017, serverSelectionTimeoutMS=2)
     users = client[db_name][collection_name]
-    update_document(users, user_id, account_key)
+    update_document(users, user_id, str(account_key))
 
 
 # TODO implement an additional periodic (every few minutes) celery task to check for

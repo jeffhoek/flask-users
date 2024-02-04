@@ -1,3 +1,4 @@
+import os
 from pymongo import MongoClient, TEXT
 from flask import Flask, request, app, jsonify
 from flask_users.user import User
@@ -125,4 +126,6 @@ if __name__ == '__main__':  # pragma: no cover
     app.config['collection_name'] = 'users'
 
     initialize_collection(app)
-    app.run(host='0.0.0.0', debug=True)
+
+    port = int(os.environ.get('PORT', 5001))
+    app.run(debug=True, host='0.0.0.0', port=port)
