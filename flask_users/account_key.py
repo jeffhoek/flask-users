@@ -1,6 +1,10 @@
 import functools
 import requests
 import time
+import random
+
+
+random.seed()
 
 
 SERVICE_URL = 'https://bc-account-service.mybluemix.net/v1/accounts'
@@ -28,7 +32,7 @@ def retry_request(func, num_retries=5):
     return wrapper
 
 
-@retry_request
+# @retry_request
 def get_account_key(email, user_id):
     """
     Fetch account key from service
@@ -36,6 +40,8 @@ def get_account_key(email, user_id):
     :param user_id: user ID
     :return: requests Response
     """
+    return random.randint(0, 100)
+
     post_json = {
         'email': email,
         'user_id': user_id

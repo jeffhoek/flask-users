@@ -1,5 +1,12 @@
-FROM python:3.6.5
-ADD . /code
+FROM python:3.11
+
 WORKDIR /code
-RUN python setup.py install
-CMD python app.py
+
+COPY . .
+
+RUN pip3 install -r requirements.txt && pip3 install -e .
+
+#USER 1001
+
+ENTRYPOINT ["python3"]
+CMD ["flask_users/app.py"]

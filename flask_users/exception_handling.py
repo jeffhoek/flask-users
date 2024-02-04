@@ -59,7 +59,7 @@ def handle_exceptions(app_config=None):
             except DuplicateKeyError as e:
                 return handle_duplicate_key_error(e, app_config)
             except Exception as e:
-                logger.error(e)
+                logger.exception(e)
                 return jsonify(errors=['internal server error']), 500
 
         return wrapper
