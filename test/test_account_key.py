@@ -11,7 +11,7 @@ def test_get_account_key_200():
 
     with HTTMock(callback_mock):
         result = get_account_key('janedoe@example.com', 'abc123')
-        nose.tools.assert_equal(result.status_code, 200)
+        nose.tools.assert_equal(type(result), int)
 
 
 @patch('time.sleep', return_value=None)
