@@ -39,14 +39,14 @@ To run the web app and back end services run:
 ```$bash
 docker-compose up -d
 ```
-This will run each service as a daemon.  The application should now be available at `localhost:5000/v1/users`.
+This will run each service as a daemon.  The application should now be available at `localhost:5001/v1/users`.
 If you have `curl` installed you can query the service from the command line using:
 ```$bash
-curl -i -H "Content-Type: application/json" -XGET "localhost:5000/v1/users"
+curl -i -H "Content-Type: application/json" -XGET "localhost:5001/v1/users"
 ```
 Or to `POST` a user document use:
 ```$bash
-curl -i -H "Content-Type: application/json" -X POST localhost:5000/v1/users -d '{"metadata":"age 25, hobbies sailing", "email": "johndoe@example.com", "full_name": "John Doe}'
+curl -i -H "Content-Type: application/json" -X POST localhost:5001/v1/users -d '{"metadata":"age 25, hobbies sailing", "email": "johndoe@example.com", "full_name": "John Doe}'
 ```
 
 

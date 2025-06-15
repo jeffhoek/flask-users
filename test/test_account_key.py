@@ -1,4 +1,3 @@
-import nose.tools
 from unittest.mock import patch
 from flask_users.account_key import get_account_key
 from httmock import HTTMock, all_requests, response
@@ -11,7 +10,7 @@ def test_get_account_key_200():
 
     with HTTMock(callback_mock):
         result = get_account_key('janedoe@example.com', 'abc123')
-        nose.tools.assert_equal(type(result), int)
+        assert type(result) == int
 
 
 @patch('time.sleep', return_value=None)
@@ -22,4 +21,4 @@ def test_exceeds_num_retries(patched_sleep):
 
     with HTTMock(callback_mock):
         result = get_account_key('janedoe@example.com', 'abc123')
-        nose.tools.assert_equal(result.status_code, 500)
+        assert result.status_code == 500

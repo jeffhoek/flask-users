@@ -1,5 +1,4 @@
 import pytest
-import nose.tools
 from unittest.mock import patch
 
 from pymongo import MongoClient
@@ -11,7 +10,7 @@ from flask_users.app import app, initialize_collection, USERS_DB_NAME
 from flask_users.tasks import celery_app
 
 
-USERS_API_BASE = 'http://localhost:5000/v1/users'
+USERS_API_BASE = 'http://localhost:5001/v1/users'
 
 MONGO_HOST = 'localhost'
 TEST_COLLECTION = 'users_test'
@@ -50,7 +49,7 @@ def test_internal_server_error(client):
 
     with patch('flask_users.app.get_user_query', side_effect=my_side_effect):
         response = client.get(USERS_API_BASE)
-        nose.tools.assert_equal(response.status_code, 500)
+        assert response.status_code == 500
 
 
 def test_backend_server_error(client):
@@ -70,7 +69,7 @@ def test_backend_server_error(client):
             'password': 'pass123#'
         }
         response = client.post(USERS_API_BASE, json=user)
-        nose.tools.assert_equal(response.status_code, 500)
+        assert response.status_code == 500
 
 
 def test_get_users(client):
@@ -79,12 +78,12 @@ def test_get_users(client):
     :param client: Flask test client
     """
     response = client.get(USERS_API_BASE)
-    nose.tools.assert_equal(response.status_code, 200)
+    assert response.status_code == 200
 
 
 def test_post_missing_json(client):
     response = client.post(USERS_API_BASE)
-    nose.tools.assert_equal(response.status_code, 422)
+    assert response.status_code == 422
 
 
 def test_get_post(client):
@@ -105,27 +104,27 @@ def test_get_post(client):
             'password': 'pass123#'
         }
         response = client.post(USERS_API_BASE, json=user)
-        nose.tools.assert_equal(response.status_code, 201)
+        assert response.status_code == 201
 
         response = client.get(USERS_API_BASE)
-        nose.tools.assert_equal(response.status_code, 200)
+        assert response.status_code == 200
         users = response.json.get('users')
-        nose.tools.assert_equal(len(users), 1)
+        assert len(users) == 1
 
         response = client.get(USERS_API_BASE + '?query=miss')
-        nose.tools.assert_equal(response.status_code, 200)
+        assert response.status_code == 200
 
         response = client.get(USERS_API_BASE + '?query=sewing')
-        nose.tools.assert_equal(response.status_code, 200)
+        assert response.status_code == 200
         users = response.json.get('users')
-        nose.tools.assert_equal(len(users), 1)
-        nose.tools.assert_in('sewing', users[0].get('metadata'))
+        assert len(users) == 1
+        assert 'sewing' in users[0].get('metadata')
 
         user = {
             'junk': 'Unprocessable entity'
         }
         response = client.post(USERS_API_BASE, json=user)
-        nose.tools.assert_equal(response.status_code, 422)
+        assert response.status_code == 422
 
         user = {
             'full_name': 'John Doe',
@@ -134,12 +133,12 @@ def test_get_post(client):
             'password': 'pass123#'
         }
         response = client.post(USERS_API_BASE, json=user)
-        nose.tools.assert_equal(201, response.status_code)
+        assert 201 == response.status_code
 
         response = client.get(USERS_API_BASE + '?query=doe')
-        nose.tools.assert_equal(200, response.status_code)
+        assert 200 == response.status_code
         users = response.json.get('users')
-        nose.tools.assert_equal(2, len(users))
+        assert 2 == len(users)
 
 
 def test_unique_email_constraint(client):
@@ -159,14 +158,14 @@ def test_unique_email_constraint(client):
             'password': 'pass123#'
         }
         response = client.post(USERS_API_BASE, json=user)
-        nose.tools.assert_equal(201, response.status_code)
+        assert 201 == response.status_code
 
         response = client.post(USERS_API_BASE, json=user)
-        nose.tools.assert_equal(422, response.status_code)
+        assert 422 == response.status_code
 
         user['email'] = 'janedoe123@example.com'
         response = client.post(USERS_API_BASE, json=user)
-        nose.tools.assert_equal(201, response.status_code)
+        assert 201 == response.status_code
 
 
 def test_field_constraints(client):
@@ -181,20 +180,20 @@ def test_field_constraints(client):
         'password': 'pass123#'
     }
     response = client.post(USERS_API_BASE, json=user)
-    nose.tools.assert_equal(422, response.status_code)
+    assert 422 == response.status_code
 
     user['email'] = 'y'*201 + '@example.com'
     response = client.post(USERS_API_BASE, json=user)
-    nose.tools.assert_equal(422, response.status_code)
+    assert 422 == response.status_code
 
     user['metadata'] = 'm'*2001
     user['password'] = 'p'*101
     response = client.post(USERS_API_BASE, json=user)
-    nose.tools.assert_equal(422, response.status_code)
+    assert 422 == response.status_code
     errors = response.json.get('errors')
-    nose.tools.assert_equal(3, len(errors))
+    assert 3 == len(errors)
     for err in errors:
-        nose.tools.assert_in('too long', err)
+        assert 'too long' in err
 
 
 def test_duplicate_key_missing(client):
@@ -213,11 +212,11 @@ def test_duplicate_key_missing(client):
         'password': 'pass123#'
     }
     response = client.post(USERS_API_BASE, json=user)
-    nose.tools.assert_equal(201, response.status_code)
+    assert 201 == response.status_code
 
     with patch('pymongo.collection.Collection.insert_one', side_effect=my_side_effect):
         response = client.post(USERS_API_BASE, json=user)
-        nose.tools.assert_equal(500, response.status_code)
+        assert 500 == response.status_code
 
 
 def test_rogue_fields(client):
@@ -232,9 +231,7 @@ def test_rogue_fields(client):
         'password': 'pass123#'
     }
     response = client.post(USERS_API_BASE, json=user)
-    nose.tools.assert_equal(422, response.status_code)
+    assert 422 == response.status_code
     errors = response.json.get('errors')
-    nose.tools.assert_equal(1, len(errors))
-    nose.tools.assert_in('Rogue', errors[0])
-
-
+    assert 1 == len(errors)
+    assert 'Rogue' in errors[0]
