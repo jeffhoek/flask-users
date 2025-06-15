@@ -1,12 +1,36 @@
-FROM python:3.11
+FROM python:3.11-buster as builder
 
 WORKDIR /code
 
-COPY . .
+RUN pip install poetry
 
-RUN pip3 install -r requirements.txt && pip3 install -e .
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
 
-#USER 1001
+COPY pyproject.toml poetry.lock /code/
 
-ENTRYPOINT ["python3"]
-CMD ["flask_users/app.py"]
+RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
+
+#
+# Runtime image
+#
+
+FROM python:3.11-slim-buster as runtime
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV VIRTUAL_ENV=/code/.venv \
+    PATH="/code/.venv/bin:$PATH"
+
+COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
+
+COPY flask_users ./flask_users
+
+USER 1001
+ENV PYTHONPATH ./
+
+ENTRYPOINT ["python3", "-m", "flask_users.app"]

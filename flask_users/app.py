@@ -1,6 +1,6 @@
 import os
 from pymongo import MongoClient, TEXT
-from flask import Flask, request, app, jsonify
+from flask import Flask, request, jsonify
 from flask_users.user import User
 from flask_users.password import encrypt_password
 from flask_users.tasks import async_get_account_key
@@ -15,6 +15,10 @@ celery_app = Celery('tasks', broker='redis://redis:6379/0')
 
 
 app = Flask(__name__)
+app.config['mongo_host'] = 'mongodb'
+app.config['db_name'] = 'flask_users'
+app.config['collection_name'] = 'users'
+app.config['logger'] = app.logger
 
 
 def get_users_collection(app_config):
@@ -23,7 +27,10 @@ def get_users_collection(app_config):
     :param app_config: Flask app.config
     :return: pymongo Collection object
     """
-    client = MongoClient(app_config['mongo_host'], 27017, serverSelectionTimeoutMS=2)
+    client = MongoClient(
+        host=app_config['mongo_host'],
+        port=27017,
+        serverSelectionTimeoutMS=2000)
     return client[app_config['db_name']][app_config['collection_name']]
 
 
@@ -44,6 +51,9 @@ def initialize_collection(app_reference):
     index_map[index_name] = 'account_key'
 
     app_reference.config['index_map'] = index_map
+
+
+initialize_collection(app)
 
 
 def get_user_query(request_args):
@@ -114,18 +124,11 @@ def users_post():
             app.config['mongo_host'],
             app.config['db_name'],
             app.config['collection_name'])
-        app.logger.error(async_response)
+        app.logger.debug(f'celery async_response: {async_response}')
 
         return jsonify(user.to_native()), 201
 
 
 if __name__ == '__main__':  # pragma: no cover
-
-    app.config['mongo_host'] = 'mongodb'
-    app.config['db_name'] = 'flask_users'
-    app.config['collection_name'] = 'users'
-
-    initialize_collection(app)
-
     port = int(os.environ.get('PORT', 5001))
     app.run(debug=True, host='0.0.0.0', port=port)
