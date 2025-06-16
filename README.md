@@ -2,6 +2,8 @@
 
 Code Challenge
 
+> This project is a work in progress experiment.
+
 ## Dependencies
 
 ### Docker
