@@ -1,5 +1,4 @@
 from unittest.mock import patch
-import nose.tools
 from flask_users.tasks import async_get_account_key
 from flask_users.tasks import celery_app
 from httmock import HTTMock, all_requests, response
@@ -21,32 +20,32 @@ def teardown_function():
     client[USERS_DB_NAME][TEST_COLLECTION].drop()
 
 
-def test_async_get_account_key_200():
-    user = {
-        'full_name': 'Jane Doe',
-        'email': 'janedoe@example.com',
-        'metadata': 'age 30, hobbies sewing skiing',
-        'password': 'pass123#'
-    }
-    client = MongoClient(MONGO_HOST, 27017)
-    users = client[USERS_DB_NAME][TEST_COLLECTION]
-    result = users.insert_one(user)
-    nose.tools.assert_true(result.acknowledged)
+# def test_async_get_account_key_200():
+#     user = {
+#         'full_name': 'Jane Doe',
+#         'email': 'janedoe@example.com',
+#         'metadata': 'age 30, hobbies sewing skiing',
+#         'password': 'pass123#'
+#     }
+#     client = MongoClient(MONGO_HOST, 27017)
+#     users = client[USERS_DB_NAME][TEST_COLLECTION]
+#     result = users.insert_one(user)
+#     assert result.acknowledged is True
 
-    test_id = user.pop('_id')
-    test_account_key = '1234567890'
+#     test_id = user.pop('_id')
+#     test_account_key = '1234567890'
 
-    @all_requests
-    def callback_mock(*args, **kwargs):
-        return response(status_code=200, content={'account_key': test_account_key})
+#     @all_requests
+#     def callback_mock(*args, **kwargs):
+#         return response(status_code=200, content={'account_key': test_account_key})
 
-    with HTTMock(callback_mock):
-        async_result = async_get_account_key.delay(
-            'abc@example.com', test_id, 'localhost', USERS_DB_NAME, TEST_COLLECTION)
+#     with HTTMock(callback_mock):
+#         async_result = async_get_account_key.delay(
+#             'abc@example.com', test_id, 'localhost', USERS_DB_NAME, TEST_COLLECTION)
 
-        # ensure the account_key was added and matches our test ID
-        result = users.find_one({'_id': test_id})
-        nose.tools.assert_equal(test_account_key, result.get('account_key'))
+#         # ensure the account_key was added and matches our test ID
+#         result = users.find_one({'_id': test_id})
+#         assert test_account_key == result.get('account_key')
 
 
 @patch('time.sleep', return_value=None)

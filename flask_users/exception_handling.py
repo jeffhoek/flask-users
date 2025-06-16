@@ -1,5 +1,7 @@
 import functools
 import logging
+from json.decoder import JSONDecodeError
+from werkzeug.exceptions import BadRequest
 from flask import jsonify
 from pymongo.errors import DuplicateKeyError
 from schematics.exceptions import DataError
@@ -58,6 +60,12 @@ def handle_exceptions(app_config=None):
                 return handle_validation_error(e)
             except DuplicateKeyError as e:
                 return handle_duplicate_key_error(e, app_config)
+            except JSONDecodeError as error:
+                return jsonify(errors=['Bad JSON']), 422
+            except BadRequest as error:
+                app_config['logger'].error(f'bad JSON:{error}')
+                logger.error(f'bad JSON:{error}')
+                return jsonify(errors=['Bad JSON']), 422
             except Exception as e:
                 logger.exception(e)
                 return jsonify(errors=['internal server error']), 500

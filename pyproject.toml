@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "flask-users"
+version = "0.1.0"
+description = ""
+authors = ["Jeffrey Hoekman <jeffreyscotthoekman@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pymongo = "^4.7.2"
+celery = "^5.4.0"
+schematics = "^2.1.1"
+flask = "^3.0.3"
+requests = "^2.32.3"
+redis = "6.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^6.0.0"
+httmock = "^1.4.0"

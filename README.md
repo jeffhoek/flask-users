@@ -2,73 +2,64 @@
 
 Code Challenge
 
+> This project is a work in progress experiment.
+
 ## Dependencies
 
 ### Docker
-In order to run this application you'll need to run Docker.  Please see https://docs.docker.com/get-started/ if you haven't already set up Docker in your development environment.
+In order to run this application you'll need to run [Docker](https://docs.docker.com/get-started/) or [Podman](https://podman-desktop.io/).
 
-### Python
-This application uses Python 3.6 and `virtualenv` to isolate depedencies from your OS.  Please ensure you have python3 installed (https://www.python.org/).
-`virtualenv` is also recommended:
-```$basj
-pip install virtualenv
+### Poetry
+This application uses [Poetry](https://python-poetry.org/) for dependency management. On MacOS:
+```
+brew install poetry
 ```
 
 ## Installation
-Unzip the archive and `cd` into the top-level `flask_users` directory.
-
-Create your virtual environment:
-```$bash
-virtualenv -p python3 myenv
 ```
-
-Then activate the environment:
-```$bash
-source myenv/bin/activate
-```
-
-Your terminal prompt should now have the `(myenv)` prefix.
-
-Install requirements.txt:
-```$bash
-pip install -r requirements.txt
+poetry install
 ```
 
 ## Running the Web Application
 To run the web app and back end services run:
 ```$bash
-docker-compose up -d
+podman compose up -d
 ```
-This will run each service as a daemon.  The application should now be available at `localhost:5000/v1/users`.
+
+This will run each service as a daemon.  The application should now be available at [http://localhost:5001/v1/users](http://localhost:5001/v1/users).
+
 If you have `curl` installed you can query the service from the command line using:
 ```$bash
-curl -i -H "Content-Type: application/json" -XGET "localhost:5000/v1/users"
-```
-Or to `POST` a user document use:
-```$bash
-curl -i -H "Content-Type: application/json" -X POST localhost:5000/v1/users -d '{"metadata":"age 25, hobbies sailing", "email": "johndoe@example.com", "full_name": "John Doe}'
+curl -i -H "Content-Type: application/json" -XGET "localhost:5001/v1/users"
 ```
 
+To `POST` a user document use something like:
+```$bash
+curl -i -H "Content-Type: application/json" -X POST localhost:5001/v1/users -d '{"metadata":"age 25, hobbies sailing", "email": "johndoe@example.com", "full_name": "John Doe", "password": "very-insecure"}'
+```
 
 ## Testing
-Start up mongodb:
-```$bash
-docker-compose up -d mongodb
+Install test dependencies:
 ```
-Then to run all tests simply run:
-```$bash
-pytest
-```
-For verbose output:
-```$bash
-pytest -v
-```
-For code coverage:
-```$bash
-pytest -v --cov-report term-missing --cov=flask_users
-```
-To suppress warning:
-```$bash
-pytest -v --cov-report term-missing --cov=flask_users -p no:warnings
+poetry install --with test
 ```
 
+To run all tests run:
+```$bash
+poetry run pytest --disable-warnings
+```
+
+For verbose output:
+```$bash
+poetry run pytest -v
+```
+
+For code coverage:
+```$bash
+poetry run pytest -v --cov-report term-missing --cov=flask_users
+```
+
+To suppress warning:
+```$bash
+poetry run pytest -v --cov-report term-missing --cov=flask_users -p no:warnings
+```
