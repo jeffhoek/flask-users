@@ -53,9 +53,6 @@ def initialize_collection(app_reference):
     app_reference.config['index_map'] = index_map
 
 
-initialize_collection(app)
-
-
 def get_user_query(request_args):
     """
     Build pymongo user query
@@ -130,5 +127,6 @@ def users_post():
 
 
 if __name__ == '__main__':  # pragma: no cover
+    initialize_collection(app)
     port = int(os.environ.get('PORT', 5001))
     app.run(debug=True, host='0.0.0.0', port=port)

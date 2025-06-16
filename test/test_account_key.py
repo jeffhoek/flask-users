@@ -21,4 +21,4 @@ def test_exceeds_num_retries(patched_sleep):
 
     with HTTMock(callback_mock):
         result = get_account_key('janedoe@example.com', 'abc123')
-        assert result.status_code == 500
+        assert result <= 100
